@@ -1,0 +1,94 @@
+{
+  "captured_at": "2026-10-10T09:39:41.775444+00:00",
+  "checks": [
+    {
+      "check_id": "decision_is_block",
+      "description": "the unsafe proposal was rejected",
+      "mode": "real_http",
+      "observed": "decision=BLOCK",
+      "passed": true
+    },
+    {
+      "check_id": "zero_executor_invocations",
+      "description": "no executor invocation occurred during the attempt",
+      "mode": "real_http",
+      "observed": "executor invocations before=0 after=0 delta=0",
+      "passed": true
+    },
+    {
+      "check_id": "executed_flag_false",
+      "description": "the runtime reports executed=false",
+      "mode": "real_http",
+      "observed": "executed=False",
+      "passed": true
+    },
+    {
+      "check_id": "rule_numerically_applies",
+      "description": "requested duration exceeds the configured hard cap, so the fixed rule genuinely fired",
+      "mode": "real_http",
+      "observed": "requested=90.0s configured_max=60.0s",
+      "passed": true
+    },
+    {
+      "check_id": "target_healthy_before",
+      "description": "target was healthy and fresh before the attempt",
+      "mode": "real_http",
+      "observed": "state=healthy; HTTP 200 from /health",
+      "passed": true
+    },
+    {
+      "check_id": "target_healthy_after",
+      "description": "target was still healthy after the attempt -- the error was in the rejected request, not in the target",
+      "mode": "real_http",
+      "observed": "state=healthy; HTTP 200 from /health",
+      "passed": true
+    },
+    {
+      "check_id": "stop_latched",
+      "description": "STOP was latched after the rejection",
+      "mode": "real_http",
+      "observed": "stop_latched=True",
+      "passed": true
+    },
+    {
+      "check_id": "target_observed_zero_mutations",
+      "description": "the target itself observed no mutating request, independently of the runtime's own counter",
+      "mode": "real_http",
+      "observed": "target_observed_mutations=0",
+      "passed": true
+    }
+  ],
+  "configured_max_duration_seconds": 60.0,
+  "corroborated": true,
+  "decision": "BLOCK",
+  "evidence_hash": "sha256:685dda402638fdfabf5b1335fdef94a97e08324976c3992782a7f3337fc71db4",
+  "executed": false,
+  "executor_invocations_reported": 0,
+  "health_after": "healthy",
+  "health_after_detail": "HTTP 200 from /health",
+  "health_before": "healthy",
+  "health_before_detail": "HTTP 200 from /health",
+  "notes": [
+    "BLOCK decision was supplied by a stand-in guard, not Tooshita's runtime; this run verifies the verification harness, not the production guard"
+  ],
+  "observation_mode": "real_http",
+  "provenance": "LOCAL_DEMO",
+  "request_id": "req_localdemo_acceptance",
+  "requested_duration_seconds": 90.0,
+  "resilience_score": null,
+  "resilience_score_reason": "no fault was executed; a prevented attempt has no measured degradation or recovery, so no resilience score applies",
+  "rule_id": "max_fault_duration_seconds",
+  "schema_version": "1.0",
+  "stop_latched": true,
+  "supplementary_checks": [
+    {
+      "check_id": "within_cap_still_blocked",
+      "description": "an accepted-duration request is still blocked while execution capability is unavailable",
+      "mode": "real_http",
+      "observed": "requested=30.0s within_cap=True decision=BLOCK",
+      "passed": true
+    }
+  ],
+  "target_observed_mutations": 0,
+  "verdict": "ACCEPTED"
+}

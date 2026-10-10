@@ -1,0 +1,11 @@
+# Runtime dependencies actually imported by backend/, scripts/ and tests/.
+# Pinned so every laptop in the team resolves the same versions.
+#
+# Required: backend.app.telemetry.models and backend.app.platform.models
+pydantic==2.12.3
+
+# Lazy imports. Needed only for live runs, not for the unit test suite:
+#   httpx    -> backend/app/telemetry/transport.py  (live Online Boutique probe)
+#   psycopg  -> backend/app/telemetry/plan_estimator.py  (live PostgreSQL EXPLAIN)
+httpx==0.28.1
+psycopg[binary]==3.2.12
