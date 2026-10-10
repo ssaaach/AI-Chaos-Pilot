@@ -7,6 +7,11 @@ from app.api.config import Settings
 OPERATOR_TOKEN = "test-operator-token-local-demo-0000000000"
 
 
+@pytest.fixture(autouse=True)
+def isolated_demo_latch(tmp_path, monkeypatch):
+    monkeypatch.setenv("DEMO_LATCH_FILE", str(tmp_path / "stop.json"))
+
+
 @pytest.fixture
 def demo_latch_path(tmp_path):
     return tmp_path / "demo_stop_latch.json"

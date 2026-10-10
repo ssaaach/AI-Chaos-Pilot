@@ -27,8 +27,10 @@ class StopLatchStore:
             return StopLatchState()
         try:
             raw = json.loads(self.path.read_text(encoding="utf-8"))
+            if not isinstance(raw, dict) or type(raw.get("latched")) is not bool:
+                return StopLatchState(latched=True)
             return StopLatchState(
-                latched=bool(raw.get("latched")),
+                latched=raw["latched"],
                 request_id=raw.get("request_id"),
                 latched_at=raw.get("latched_at"),
             )
@@ -41,7 +43,9 @@ class StopLatchStore:
             "request_id": request_id,
             "latched_at": _utcnow_iso() if latched else None,
         }
-        self.path.write_text(json.dumps(payload, sort_keys=True), encoding="utf-8")
+        temporary = self.path.with_suffix(".tmp")
+        temporary.write_text(json.dumps(payload, sort_keys=True), encoding="utf-8")
+        temporary.replace(self.path)
 
     def clear(self) -> None:
         if self.path.is_file():

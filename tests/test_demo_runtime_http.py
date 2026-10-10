@@ -11,7 +11,9 @@ from app.api.config import Settings
 from tests.conftest import OPERATOR_TOKEN, auth_headers
 
 TARGET_HOST = "127.0.0.1"
-TARGET_PORT = 8090
+with socket.socket() as free_socket:
+    free_socket.bind((TARGET_HOST, 0))
+    TARGET_PORT = free_socket.getsockname()[1]
 TARGET_URL = f"http://{TARGET_HOST}:{TARGET_PORT}/health"
 
 
@@ -72,6 +74,7 @@ async def test_real_http_target_stays_healthy_and_ninety_second_injection_blocke
     monkeypatch.setenv("DATA_MODE", "demo")
     monkeypatch.setenv("OPERATOR_TOKEN", OPERATOR_TOKEN)
     monkeypatch.setenv("DEMO_LATCH_FILE", str(demo_latch_path))
+    monkeypatch.setenv("DEMO_TARGET_PORT", str(TARGET_PORT))
     settings = Settings.environment()
     app = create_app(settings=settings)
     transport = ASGITransport(app=app)

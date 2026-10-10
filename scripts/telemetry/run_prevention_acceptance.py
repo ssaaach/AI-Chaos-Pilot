@@ -9,12 +9,8 @@ What this does and does not prove
 It observes the target over real HTTP before and after an unsafe attempt, reads
 the target's own mutation witness, and checks the runtime's execution spy.
 
-**The BLOCK decision is currently supplied by a stand-in** (``--guard stub``),
-because Tooshita's preflight guard is not merged yet. The evidence says so in its
-notes. Once her guard lands, replace ``stub_guard`` with a call into it; the
-verifier and the evidence format do not change. Until then this run shows the
-*verification harness* works against a real socket -- it is not yet proof that
-the production guard rejects the request.
+The BLOCK decision comes from Tooshita's real DemoRuntimeGuard. Navya's
+independent verifier reads the separate target and the runtime executor spy.
 
 Output is numeric and categorical only, and carries no resilience score.
 """
@@ -22,6 +18,8 @@ Output is numeric and categorical only, and carries no resilience score.
 from __future__ import annotations
 
 import argparse
+import asyncio
+import tempfile
 import json
 import sys
 from pathlib import Path
@@ -32,7 +30,13 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 import reference_target  # noqa: E402
 
-from backend.app.telemetry.prevention import (  # noqa: E402
+sys.path.insert(0, str(ROOT / "backend"))
+from app.runtime.demo_guard import DemoRuntimeGuard
+from app.runtime.demo_contract import DemoInjectionRequest
+from app.runtime.health import LoopbackHealthClient
+from app.runtime.latch import StopLatchStore
+
+from app.telemetry.prevention import (  # noqa: E402
     CountingExecutionSpy,
     PreventionVerifier,
     TargetHealthProbe,
@@ -42,17 +46,6 @@ from backend.app.telemetry.prevention import (  # noqa: E402
 REQUESTED_SECONDS = 90.0
 MAX_SECONDS = 60.0
 RULE_ID = "max_fault_duration_seconds"
-
-
-def stub_guard(requested_seconds: float, max_seconds: float) -> tuple[str, bool]:
-    """Stand-in for Tooshita's preflight guard. Returns (decision, executed).
-
-    It never touches the spy or the target, mirroring the contract the real
-    guard must meet: rejection happens before any executor invocation.
-    """
-    if requested_seconds > max_seconds:
-        return "BLOCK", False
-    return "BLOCK", False  # execution is unavailable in the LOCAL DEMO
 
 
 def main() -> int:
@@ -72,7 +65,9 @@ def main() -> int:
 
     try:
         probe = TargetHealthProbe(base_url)
-        spy = CountingExecutionSpy()
+        latch_dir = tempfile.TemporaryDirectory()
+        guard = DemoRuntimeGuard(health_client=LoopbackHealthClient(base_url + "/health"), latch_store=StopLatchStore(Path(latch_dir.name) / "latch.json"))
+        spy = guard.executor
         verifier = PreventionVerifier(
             probe, spy, configured_max_duration_seconds=MAX_SECONDS
         )
@@ -80,24 +75,21 @@ def main() -> int:
         before = probe.read_health()
         spy_before = spy.invocation_count
 
-        decision, executed = stub_guard(REQUESTED_SECONDS, MAX_SECONDS)
+        result = asyncio.run(guard.inject_attempt(DemoInjectionRequest(fault_type="service_pause", duration_seconds=int(REQUESTED_SECONDS)), "acceptance-verifier"))
+        decision, executed = result.decision, result.executed
 
         after = probe.read_health()
         evidence = verifier.verify_rejected_attempt(
-            request_id="req_localdemo_acceptance",
-            rule_id=RULE_ID,
+            request_id=result.request_id,
+            rule_id=result.rule_id,
             decision=decision,
             executed=executed,
             requested_duration_seconds=REQUESTED_SECONDS,
-            stop_latched=True,
+            stop_latched=guard.latched,
             health_before=before,
             health_after=after,
             spy_count_before=spy_before,
-            extra_notes=(
-                "BLOCK decision was supplied by a stand-in guard, not Tooshita's "
-                "runtime; this run verifies the verification harness, not the "
-                "production guard",
-            ),
+            extra_notes=("Real Tooshita guard; independent Navya HTTP verifier; no executed chaos or resilience score.",),
         )
         assert_no_score_for_prevented_attempt(evidence)
 
@@ -111,7 +103,7 @@ def main() -> int:
 
         out = Path(args.out)
         out.parent.mkdir(parents=True, exist_ok=True)
-        out.write_text(json.dumps(payload, indent=2, sort_keys=True))
+        out.write_text(json.dumps(payload, indent=2, sort_keys=True), encoding="utf-8")
 
         print(f"\nLOCAL DEMO prevention acceptance -> {evidence.verdict}")
         print(f"  observation mode : {evidence.observation_mode.value}")

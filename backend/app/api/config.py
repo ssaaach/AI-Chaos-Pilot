@@ -23,7 +23,8 @@ class Settings:
         if self.mode != "fixture" and self.fake_runtime_enabled: raise ValueError("Fake runtime is fixture-only")
     @classmethod
     def environment(cls):
-        return cls(mode=os.getenv("DATA_MODE", "fixture"), operator_token=os.getenv("OPERATOR_TOKEN", ""), sandbox_id=os.getenv("SANDBOX_ID", "fixture-sandbox"), context=os.getenv("KUBE_CONTEXT", "kind-bosch-sachin"), fake_runtime_enabled=os.getenv("FAKE_RUNTIME_ENABLED", "false").lower() == "true")
+        port = int(os.getenv("LOCAL_API_PORT", "8000"))
+        return cls(origins=("http://127.0.0.1:5173", "http://localhost:5173", f"http://127.0.0.1:{port}", f"http://localhost:{port}"), mode=os.getenv("DATA_MODE", "fixture"), operator_token=os.getenv("OPERATOR_TOKEN", ""), sandbox_id=os.getenv("SANDBOX_ID", "fixture-sandbox"), context=os.getenv("KUBE_CONTEXT", "kind-bosch-sachin"), fake_runtime_enabled=os.getenv("FAKE_RUNTIME_ENABLED", "false").lower() == "true")
 
 def configured_ports(settings):
     if settings.mode == "demo":

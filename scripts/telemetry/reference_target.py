@@ -70,7 +70,7 @@ class Handler(BaseHTTPRequestHandler):
 
         if self.path == "/health":
             if healthy:
-                self._send(200, {"status": "healthy"})
+                self._send(200, {"status": "healthy", "requests": total, "mutations_received": mutations})
             else:
                 self._send(503, {"status": "unhealthy"})
         elif self.path == "/_witness":

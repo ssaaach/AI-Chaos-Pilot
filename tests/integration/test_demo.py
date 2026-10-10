@@ -2,13 +2,14 @@ from fastapi.testclient import TestClient
 from app.main import create_app
 from app.api.config import Settings
 from app.adapters.demo import demo_ports
+from app.runtime.health import HealthProbeResult, utcnow
 
 TOKEN='demo-integration-token-000000000000000'
 def client_for(target_healthy=True):
     s=Settings(mode='demo',operator_token=TOKEN,context='local-demo',namespace='local-http',sandbox_id='local-demo')
     p=demo_ports(s)
-    async def probe(): return {'status':'healthy' if target_healthy else 'unavailable','requests':42}
-    p.runtime.probe=probe
+    async def probe(): return HealthProbeResult(status='healthy' if target_healthy else 'unavailable', requests=42, probed_at=utcnow())
+    p.runtime.guard.health.probe_fresh=probe
     return TestClient(create_app(s,p),headers={'Authorization':'Bearer '+TOKEN})
 
 def test_injection_is_blocked_before_mutation_with_error_popup_payload():

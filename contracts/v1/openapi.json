@@ -596,6 +596,12 @@
             "default": "1.0",
             "title": "Schema Version",
             "type": "string"
+          },
+          "target_id": {
+            "const": "demo-target",
+            "default": "demo-target",
+            "title": "Target Id",
+            "type": "string"
           }
         },
         "required": [
@@ -623,6 +629,12 @@
             "title": "Duration Seconds",
             "type": "integer"
           },
+          "evidence_label": {
+            "const": "LOCAL DEMO",
+            "default": "LOCAL DEMO",
+            "title": "Evidence Label",
+            "type": "string"
+          },
           "executed": {
             "const": false,
             "default": false,
@@ -644,6 +656,18 @@
             "default": 0,
             "title": "Mutations Dispatched",
             "type": "integer"
+          },
+          "popup_body": {
+            "const": "Injection blocked before execution",
+            "default": "Injection blocked before execution",
+            "title": "Popup Body",
+            "type": "string"
+          },
+          "popup_heading": {
+            "const": "Error has occurred",
+            "default": "Error has occurred",
+            "title": "Popup Heading",
+            "type": "string"
           },
           "reason": {
             "title": "Reason",
@@ -705,6 +729,47 @@
           "duration_seconds"
         ],
         "title": "DemoInjectionResult",
+        "type": "object"
+      },
+      "DemoSafetyStatus": {
+        "additionalProperties": false,
+        "properties": {
+          "last_result": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/DemoInjectionResult"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "schema_version": {
+            "const": "1.0",
+            "default": "1.0",
+            "title": "Schema Version",
+            "type": "string"
+          },
+          "source": {
+            "enum": [
+              "live",
+              "fixture",
+              "replay"
+            ],
+            "title": "Source",
+            "type": "string"
+          },
+          "stop_latched": {
+            "title": "Stop Latched",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "source",
+          "stop_latched",
+          "last_result"
+        ],
+        "title": "DemoSafetyStatus",
         "type": "object"
       },
       "ErrorBody": {
@@ -3550,6 +3615,24 @@
           }
         },
         "summary": "Demo Injection"
+      }
+    },
+    "/api/v1/demo/safety": {
+      "get": {
+        "operationId": "demo_safety_api_v1_demo_safety_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DemoSafetyStatus"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Demo Safety"
       }
     },
     "/api/v1/demo/status": {

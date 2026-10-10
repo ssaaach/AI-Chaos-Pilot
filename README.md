@@ -1,6 +1,6 @@
 # Bosch Resilience AI
 
-Sachin's shared-contract, FastAPI composition and React dashboard workstream, plus the requested **local prevention demo**. The demo is ready for a real separate HTTP target. It does **not** claim that Online Boutique, Kubernetes faults, SQL execution or an adaptive learner have been deployed.
+Integrated team prototype: Sachin's API/dashboard, Tooshita's persistent STOP guard, Navya's telemetry/platform and independent verifier, and Gautam's deterministic intelligence and bounded River learner. The runnable local demo prevents an unsafe injection; cluster faults and SQL execution remain disabled.
 
 ## Immediate demo
 
@@ -10,7 +10,7 @@ Sachin's shared-contract, FastAPI composition and React dashboard workstream, pl
 4. The guard returns `BLOCK`, latches STOP and dispatches **zero** target mutations.
 5. The popup says **Error has occurred** and **Injection blocked before execution**. The request failed validation; the target service remains healthy.
 
-The local target has only a health endpoint. This demonstration intentionally has no ability to execute faults. It verifies a prevention path, not cleanup of an executed Kubernetes fault. The later live runtime belongs to Tooshita.
+The local target exposes health and an independent mutation witness. This demonstration intentionally has no ability to execute faults. It verifies prevention; full Kubernetes execution and cleanup are still pending. SQL analysis uses the real AST guard with an empty allowlist until a lab schema is enrolled. The River learner is connected but cold; no SQL executions or trained predictions are claimed. No external LLM is configured.
 
 ## Setup (Windows PowerShell)
 
@@ -83,3 +83,17 @@ Updated full prompts are under `prompts/`; `scripts/update_prompt_pack.py` regen
 Team code is Apache-2.0. No upstream application code is bundled; preserve its license/notices when Ananya pins it. The shared repository is https://github.com/ssaaach/AI-Chaos-Pilot. Source publication uses the authenticated GitHub browser; the connected integration has read access but rejects writes. No CLI credential files were read. `scripts/publish.ps1` supports later pushes to a feature branch in this existing repository after normal CLI authentication; it never creates a second repository or force-pushes. Teammate review and main protection remain team setup tasks. See the repository's Actions tab for CI status; local checks are recorded separately in `docs/integration/TESTING.md`.
 
 The architecture sheet, real local demo test evidence, fixture findings report, team form and demo recording instructions are under `docs/integration/` / `reports/`. Actual event submission still requires authentic Kubernetes findings, the three required fault mechanisms and a final team-reviewed recording.
+
+## Independent prevention acceptance
+
+Run `.venv/Scripts/python.exe scripts/telemetry/run_prevention_acceptance.py` (Windows) or `.venv/bin/python scripts/telemetry/run_prevention_acceptance.py`. This calls the real runtime guard against a separate HTTP target and verifies zero executor invocations, zero target mutations, healthy before/after and STOP. Evidence is written to `reports/local_demo_prevention.json`; no resilience score is assigned to a prevented attempt.
+
+## Day 1 demo scope
+
+One deterministic computation: `90 > 60` rejects the service-pause request before dispatch. STOP persists across API restarts; the dashboard reads the authoritative latch and displays the error popup. Navya independently corroborates zero executor calls and zero target mutations over real HTTP. This is prevention evidence, not an executed outage or a resilience score.
+
+Merged team work: Navya platform/telemetry (already on main), Gautam intelligence, and Tooshita runtime (the supplied ZIP matches her branch; archive caches, Git metadata and a stray duplicate package were excluded). Original authorship is preserved in merge history.
+
+Local verification: 315 backend tests, 3 Playwright browser tests, frontend build, contract export check and real-HTTP acceptance passed. Cluster deployment, full chaos execution, SQL execution and external LLM calls are deferred.
+
+If an older demo occupies ports 8000/8090, use `powershell -ExecutionPolicy Bypass -File scripts/start-demo.ps1 -ApiPort 8100 -TargetPort 8190`, then open `http://127.0.0.1:8100`.

@@ -39,6 +39,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/demo/safety": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Demo Safety */
+        get: operations["demo_safety_api_v1_demo_safety_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/demo/status": {
         parameters: {
             query?: never;
@@ -668,6 +685,12 @@ export interface components {
              * @constant
              */
             schema_version: "1.0";
+            /**
+             * Target Id
+             * @default demo-target
+             * @constant
+             */
+            target_id: "demo-target";
         };
         /** DemoInjectionResult */
         DemoInjectionResult: {
@@ -683,6 +706,12 @@ export interface components {
             decision: "BLOCK";
             /** Duration Seconds */
             duration_seconds: number;
+            /**
+             * Evidence Label
+             * @default LOCAL DEMO
+             * @constant
+             */
+            evidence_label: "LOCAL DEMO";
             /**
              * Executed
              * @default false
@@ -703,6 +732,18 @@ export interface components {
              * @constant
              */
             mutations_dispatched: 0;
+            /**
+             * Popup Body
+             * @default Injection blocked before execution
+             * @constant
+             */
+            popup_body: "Injection blocked before execution";
+            /**
+             * Popup Heading
+             * @default Error has occurred
+             * @constant
+             */
+            popup_heading: "Error has occurred";
             /** Reason */
             reason: string;
             /** Request Id */
@@ -733,6 +774,23 @@ export interface components {
              * @enum {string}
              */
             target_status: "healthy" | "unavailable";
+        };
+        /** DemoSafetyStatus */
+        DemoSafetyStatus: {
+            last_result: components["schemas"]["DemoInjectionResult"] | null;
+            /**
+             * Schema Version
+             * @default 1.0
+             * @constant
+             */
+            schema_version: "1.0";
+            /**
+             * Source
+             * @enum {string}
+             */
+            source: "live" | "fixture" | "replay";
+            /** Stop Latched */
+            stop_latched: boolean;
         };
         /** ErrorBody */
         ErrorBody: {
@@ -1919,6 +1977,26 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    demo_safety_api_v1_demo_safety_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DemoSafetyStatus"];
                 };
             };
         };

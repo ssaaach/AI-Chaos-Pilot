@@ -21,6 +21,7 @@ pydantic==2.11.5
 pydantic-core==2.33.2
 pygments==2.21.0
 pytest==9.1.1
+pytest-asyncio==1.4.0
 river==0.26.1
 scipy==1.18.1
 starlette==1.7.0

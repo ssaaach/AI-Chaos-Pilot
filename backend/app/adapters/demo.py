@@ -1,4 +1,5 @@
 """Local prevention demo adapter — no Kubernetes mutation capability."""
+import os
 from datetime import timedelta
 from uuid import uuid4
 from app.contracts import *
@@ -6,6 +7,7 @@ from app.api.ports import Ports
 from app.api.errors import PortError
 from app.runtime.demo_contract import DemoInjectionRequest, DemoInjectionResult
 from app.runtime.demo_guard import DemoRuntimeGuard, _now
+from app.runtime.health import LoopbackHealthClient
 
 # Re-export for API composition imports.
 __all__ = ["DemoInjectionRequest", "DemoInjectionResult", "DemoAdapter", "demo_ports"]
@@ -14,7 +16,9 @@ __all__ = ["DemoInjectionRequest", "DemoInjectionResult", "DemoAdapter", "demo_p
 class DemoAdapter:
     def __init__(self, settings):
         self.settings = settings
-        self.guard = DemoRuntimeGuard(sandbox_id="local-demo")
+        target_port = int(os.getenv("DEMO_TARGET_PORT", "8090"))
+        if not 1 <= target_port <= 65535: raise ValueError("Invalid loopback target port")
+        self.guard = DemoRuntimeGuard(sandbox_id="local-demo", health_client=LoopbackHealthClient(f"http://127.0.0.1:{target_port}/health"))
         self.started = self.guard.started
 
     @property
@@ -143,5 +147,9 @@ class DemoAdapter:
 
 
 def demo_ports(settings):
+    from app.intelligence.service import IntelligenceService
+    from app.intelligence.sql_ast import SqlAllowlist
     adapter = DemoAdapter(settings)
-    return Ports(adapter, adapter, adapter, adapter)
+    # No lab database has been enrolled: SQL remains default-deny.
+    intelligence = IntelligenceService(SqlAllowlist(tables={}, default_schema="lab"))
+    return Ports(adapter, adapter, intelligence, adapter)

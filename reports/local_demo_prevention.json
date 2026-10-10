@@ -1,5 +1,5 @@
 {
-  "captured_at": "2026-10-10T09:39:41.775444+00:00",
+  "captured_at": "2026-10-10T11:04:19.050351+00:00",
   "checks": [
     {
       "check_id": "decision_is_block",
@@ -61,7 +61,7 @@
   "configured_max_duration_seconds": 60.0,
   "corroborated": true,
   "decision": "BLOCK",
-  "evidence_hash": "sha256:685dda402638fdfabf5b1335fdef94a97e08324976c3992782a7f3337fc71db4",
+  "evidence_hash": "sha256:e2e163dcfec53c789cf197807e78dc9d5b03a5b49fa80458d64be8308e2ed17f",
   "executed": false,
   "executor_invocations_reported": 0,
   "health_after": "healthy",
@@ -69,15 +69,15 @@
   "health_before": "healthy",
   "health_before_detail": "HTTP 200 from /health",
   "notes": [
-    "BLOCK decision was supplied by a stand-in guard, not Tooshita's runtime; this run verifies the verification harness, not the production guard"
+    "Real Tooshita guard; independent Navya HTTP verifier; no executed chaos or resilience score."
   ],
   "observation_mode": "real_http",
   "provenance": "LOCAL_DEMO",
-  "request_id": "req_localdemo_acceptance",
+  "request_id": "296ef0e5-5245-42a3-b679-e0dfb5c80229",
   "requested_duration_seconds": 90.0,
   "resilience_score": null,
   "resilience_score_reason": "no fault was executed; a prevented attempt has no measured degradation or recovery, so no resilience score applies",
-  "rule_id": "max_fault_duration_seconds",
+  "rule_id": "DURATION_HARD_LIMIT",
   "schema_version": "1.0",
   "stop_latched": true,
   "supplementary_checks": [

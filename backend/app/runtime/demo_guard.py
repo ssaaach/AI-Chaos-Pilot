@@ -113,8 +113,8 @@ class DemoRuntimeGuard:
 
     async def reset(self, sandbox_id: str, actor: str) -> CleanupSummary:
         await verify_health_for_reset(self.health)
-        self.latched = False
         self.latch_store.clear()
+        self.latched = False
         self.last_result = None
         return CleanupSummary(
             source="live",

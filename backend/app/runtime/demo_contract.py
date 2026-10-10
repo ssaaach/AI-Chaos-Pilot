@@ -27,3 +27,8 @@ class DemoInjectionResult(Observed):
     mutations_dispatched: Literal[0] = 0
     duration_seconds: Count
     maximum_seconds: Literal[60] = MAX_FAULT_DURATION_SECONDS
+
+
+class DemoSafetyStatus(Observed):
+    stop_latched: bool
+    last_result: DemoInjectionResult | None

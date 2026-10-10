@@ -3,6 +3,6 @@ Copyright 2026 Bosch Resilience AI team contributors
 
 Team code is licensed under Apache-2.0.
 This project is a team prototype; it is not an official Bosch product.
-No Google Online Boutique source or Kubernetes upstream manifests are bundled.
+Google Online Boutique source is vendored under application/online-boutique. Preserve its Apache-2.0 license and upstream notices.
 Preserve upstream copyright, licenses and notices when integrating those sources.
 Dependency licenses remain with their respective packages.

@@ -1,6 +1,7 @@
 """Owner integration boundary. No policy, metric math or mutations in handlers."""
 from dataclasses import dataclass
 from typing import Any, Protocol
+from collections.abc import Sequence
 from app.contracts import *
 
 
@@ -10,7 +11,7 @@ class PlatformPort(Protocol):
 
 
 class PlanEstimator(Protocol):
-    async def estimate(self, validated_sql: str, parameters: dict, target_id: str) -> PlanEstimate: ...
+    async def estimate(self, validated_sql: str, parameters: Sequence[Any], target_id: str) -> PlanEstimate: ...
 
 
 class TelemetryPort(Protocol):
