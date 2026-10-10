@@ -1,0 +1,47 @@
+{
+  "schema_version": "1.0",
+  "source": "live",
+  "scope": "local HTTP prevention demo; no Kubernetes execution",
+  "captured_at": "2026-10-10T09:07:02.636Z",
+  "target_before": {
+    "status": "healthy",
+    "service": "demo-target",
+    "requests": 19,
+    "mutations_received": 0,
+    "uptime_seconds": 702.907
+  },
+  "guard_result": {
+    "schema_version": "1.0",
+    "source": "live",
+    "request_id": "7a254f05-b4ac-43cb-af97-fa386f09c55e",
+    "captured_at": "2026-10-10T09:06:49.496771Z",
+    "decision": "BLOCK",
+    "message": "Error has occurred — injection blocked before execution.",
+    "reason": "Requested outage is 90 seconds, exceeding the fixed 60-second maximum. Execution was stopped before dispatch.",
+    "rule_id": "DURATION_HARD_LIMIT",
+    "stop_latched": true,
+    "executed": false,
+    "target_status": "healthy",
+    "target_requests": 28,
+    "mutations_dispatched": 0,
+    "duration_seconds": 90,
+    "maximum_seconds": 60
+  },
+  "target_after": {
+    "status": "healthy",
+    "service": "demo-target",
+    "requests": 57,
+    "mutations_received": 0,
+    "uptime_seconds": 721.063
+  },
+  "checks": {
+    "blocked_before_execution": true,
+    "zero_mutations": true,
+    "target_remained_healthy": true,
+    "popup_verified": true
+  },
+  "limitations": [
+    "The local demo target is read-only; no fault executor is installed",
+    "No Kubernetes fault, SQL execution, model learning or resilience score was verified"
+  ]
+}
