@@ -13,3 +13,9 @@ playwright-report/
 *.pyc
 *.tsbuildinfo
 .coverage
+
+# Telemetry/platform workstream
+*.py[cod]
+.env.*
+!.env.example
+sandbox.identity.json
