@@ -1,0 +1,20 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: boutique
+  labels:
+    app.kubernetes.io/part-of: bosch-resilience-ai
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: inventory-lab
+  labels:
+    app.kubernetes.io/part-of: bosch-resilience-ai
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: resilience-system
+  labels:
+    app.kubernetes.io/part-of: bosch-resilience-ai
