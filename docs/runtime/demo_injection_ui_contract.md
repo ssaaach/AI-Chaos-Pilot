@@ -16,7 +16,13 @@ Request body:
 }
 ```
 
-## Popup copy (exact)
+## User-defined duration
+
+The input accepts whole seconds from 1 to 600. The backend independently validates the type and range. With fresh healthy target data and no STOP latch, 1–60 seconds returns `ALLOW`, `rule_id=DURATION_WITHIN_LIMIT`, `stop_latched=false`, heading `Safety check passed` and body `Duration accepted for demo`. This is validation success only: `executed=false` and `mutations_dispatched=0` always.
+
+Above 60 seconds returns `BLOCK` and latches STOP. A prior STOP or unavailable/stale health also returns `BLOCK`, even for a duration within the limit. Invalid inputs return HTTP 422; the frontend prevents submission and shows an input message.
+
+## Error popup copy (exact)
 
 | Role | Text |
 |------|------|
@@ -39,7 +45,7 @@ Display from the response:
 
 Do **not** show recovery-success messaging, outage confirmation, or resilience scores for this flow. The target did not execute a fault.
 
-## Example success response (blocked)
+## Example blocked response
 
 ```json
 {

@@ -7,6 +7,7 @@ from .demo_contract import DemoInjectionRequest
 class PreflightOutcome:
     rule_id: str
     reason: str
+    passed: bool = False
 
 
 def evaluate_preflight(
@@ -37,6 +38,7 @@ def evaluate_preflight(
             f"Requested outage is {body.duration_seconds} seconds, exceeding the fixed {maximum_seconds}-second maximum. Execution was stopped before dispatch.",
         )
     return PreflightOutcome(
-        "DEMO_EXECUTION_DISABLED",
-        "This prevention demo permits no service mutations. Execution was stopped before dispatch.",
+        "DURATION_WITHIN_LIMIT",
+        f"Requested duration is {body.duration_seconds} seconds, within the {maximum_seconds}-second limit. Safety check passed; no outage was executed.",
+        passed=True,
     )

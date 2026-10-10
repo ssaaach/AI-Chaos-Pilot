@@ -33,5 +33,8 @@ def test_missing_target_prevents_execution_and_reset():
 
 def test_even_within_limit_demo_has_no_execution_authority():
     with client_for() as c:
-        assert c.post('/api/v1/demo/injection',json={'fault_type':'service_pause','duration_seconds':30}).json()['rule_id']=='DEMO_EXECUTION_DISABLED'
+        result = c.post('/api/v1/demo/injection',json={'fault_type':'service_pause','duration_seconds':30}).json()
+        assert result['decision']=='ALLOW' and result['rule_id']=='DURATION_WITHIN_LIMIT'
+        assert result['executed'] is False and result['mutations_dispatched']==0
+        assert result['stop_latched'] is False
         assert c.post('/api/v1/experiments/x/start',json={'approval_id':'x'},headers={'Idempotency-Key':'x'}).status_code==409

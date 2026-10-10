@@ -4,12 +4,12 @@ import subprocess
 import sys
 import time
 env=os.environ.copy()
-env.update(DATA_MODE='demo',OPERATOR_TOKEN='browser-test-disposable-token-0000000000',FAKE_RUNTIME_ENABLED='false',LOCAL_API_PORT='8100',DEMO_TARGET_PORT='8190',DEMO_LATCH_FILE=os.path.join(os.path.dirname(__file__),'..','work','browser-stop.json'))
+env.update(DATA_MODE='demo',OPERATOR_TOKEN='browser-test-disposable-token-0000000000',FAKE_RUNTIME_ENABLED='false',LOCAL_API_PORT='8200',DEMO_TARGET_PORT='8290',DEMO_LATCH_FILE=os.path.join(os.path.dirname(__file__),'..','work','browser-stop.json'))
 from pathlib import Path
 Path(env['DEMO_LATCH_FILE']).unlink(missing_ok=True)
 processes=[]
 try:
-    for app,port in [('app.demo_target:app','8190'),('app.main:create_app','8100')]:
+    for app,port in [('app.demo_target:app','8290'),('app.main:create_app','8200')]:
         command=[sys.executable,'-m','uvicorn',app,'--host','127.0.0.1','--port',port,'--no-access-log','--log-level','critical']
         if app.endswith('create_app'): command.append('--factory')
         processes.append(subprocess.Popen(command,env=env,stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL))

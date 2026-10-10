@@ -13,7 +13,7 @@ from .constants import (
 )
 from .demo_contract import DemoInjectionRequest, DemoInjectionResult
 from .executor import MutationExecutor
-from .health import LoopbackHealthClient, verify_health_for_reset
+from .health import LoopbackHealthClient, verify_health_for_reset, is_probe_stale
 from .latch import StopLatchStore
 from .preflight import evaluate_preflight
 
@@ -54,9 +54,12 @@ class DemoRuntimeGuard:
     async def probe(self) -> dict:
         self.probes += 1
         result = await self.health.probe_fresh()
-        if result.status != "healthy":
+        status = result.status
+        if result.stale or is_probe_stale(result):
+            status = "unavailable"
+        if status != "healthy":
             self.failed += 1
-        return {"status": result.status, "requests": result.requests}
+        return {"status": status, "requests": result.requests}
 
     def _latch_stop(self, request_id: str) -> None:
         self.latched = True
@@ -70,22 +73,26 @@ class DemoRuntimeGuard:
             target_status=probe["status"],
         )
         request_id = str(uuid4())
-        self._latch_stop(request_id)
+        if not outcome.passed:
+            self._latch_stop(request_id)
+        heading = "Safety check passed" if outcome.passed else POPUP_HEADING
+        popup_body = "Duration accepted for demo" if outcome.passed else POPUP_BODY
         result = DemoInjectionResult(
             source="live",
             request_id=request_id,
             captured_at=_now(),
-            decision="BLOCK",
+            decision="ALLOW" if outcome.passed else "BLOCK",
             evidence_label=EVIDENCE_LABEL,
-            popup_heading=POPUP_HEADING,
-            popup_body=POPUP_BODY,
-            message=f"{POPUP_HEADING} — {POPUP_BODY}.",
+            popup_heading=heading,
+            popup_body=popup_body,
+            message=f"{heading} — {popup_body}.",
             reason=outcome.reason,
             rule_id=outcome.rule_id,
             target_status=probe["status"],
             target_requests=probe["requests"],
             duration_seconds=body.duration_seconds,
             maximum_seconds=MAX_FAULT_DURATION_SECONDS,
+            stop_latched=self.latched,
         )
         self.last_result = result
         return result

@@ -32,6 +32,40 @@ def guard(tmp_path, **kwargs) -> DemoRuntimeGuard:
 
 
 @pytest.mark.asyncio
+@pytest.mark.parametrize("duration,allowed", [(1, True), (30, True), (60, True), (61, False), (600, False)])
+async def test_user_duration_boundary_without_dispatch(tmp_path, duration, allowed):
+    executor = MutationExecutor()
+    runtime = guard(tmp_path, health_client=MockHealthClient(), executor=executor)
+    result = await runtime.inject_attempt(DemoInjectionRequest(fault_type="service_pause", duration_seconds=duration), "tester")
+    assert result.decision == ("ALLOW" if allowed else "BLOCK")
+    assert result.popup_heading == ("Safety check passed" if allowed else "Error has occurred")
+    assert runtime.latched is (not allowed)
+    assert result.stop_latched is (not allowed)
+    assert result.executed is False and result.mutations_dispatched == executor.dispatch_calls == 0
+    if allowed:
+        assert not runtime.latch_store.path.exists()
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("health", [MockHealthClient(status="unavailable"), MockHealthClient(stale=True)])
+async def test_safe_duration_still_requires_fresh_health(tmp_path, health):
+    runtime = guard(tmp_path, health_client=health)
+    result = await runtime.inject_attempt(DemoInjectionRequest(fault_type="service_pause", duration_seconds=30), "tester")
+    assert result.decision == "BLOCK" and result.rule_id == "TARGET_UNAVAILABLE"
+    assert runtime.latched and runtime.executor.dispatch_calls == 0
+
+
+@pytest.mark.parametrize("duration", [0, -1, 601, 1.5, "30", True, None])
+def test_invalid_durations_rejected_by_api(demo_settings, duration):
+    from starlette.testclient import TestClient
+    from app.main import create_app
+    with TestClient(create_app(settings=demo_settings)) as client:
+        response = client.post("/api/v1/demo/injection", headers=auth_headers(), json={"fault_type": "service_pause", "duration_seconds": duration})
+        assert response.status_code == 422
+        assert client.get("/api/v1/demo/safety", headers=auth_headers()).json()["stop_latched"] is False
+
+
+@pytest.mark.asyncio
 async def test_ninety_second_request_blocked_against_sixty_second_cap(tmp_path):
     executor = MutationExecutor()
     runtime = guard(tmp_path, health_client=MockHealthClient(), executor=executor)

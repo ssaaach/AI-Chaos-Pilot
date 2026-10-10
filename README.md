@@ -6,9 +6,9 @@ Integrated team prototype: Sachin's API/dashboard, Tooshita's persistent STOP gu
 
 1. Start the separate target and authenticated API/dashboard.
 2. Connect with the temporary local operator token printed by the launcher.
-3. Click **Inject test error**. This submits a 90-second service-pause attempt against a fixed 60-second maximum.
-4. The guard returns `BLOCK`, latches STOP and dispatches **zero** target mutations.
-5. The popup says **Error has occurred** and **Injection blocked before execution**. The request failed validation; the target service remains healthy.
+3. Enter an **Outage duration (seconds)** from 1 to 600, then click **Check duration**.
+4. A healthy target with a duration of 1–60 seconds returns `ALLOW` and a green **Safety check passed** popup. Success means validation passed; no outage is executed.
+5. A duration above 60 seconds returns `BLOCK`, latches STOP and opens **Error has occurred** / **Injection blocked before execution**. Reset after the health check to try again. Every result dispatches **zero** target mutations.
 
 The local target exposes health and an independent mutation witness. This demonstration intentionally has no ability to execute faults. It verifies prevention; full Kubernetes execution and cleanup are still pending. SQL analysis uses the real AST guard with an empty allowlist until a lab schema is enrolled. The River learner is connected but cold; no SQL executions or trained predictions are claimed. No external LLM is configured.
 
@@ -90,10 +90,10 @@ Run `.venv/Scripts/python.exe scripts/telemetry/run_prevention_acceptance.py` (W
 
 ## Day 1 demo scope
 
-One deterministic computation: `90 > 60` rejects the service-pause request before dispatch. STOP persists across API restarts; the dashboard reads the authoritative latch and displays the error popup. Navya independently corroborates zero executor calls and zero target mutations over real HTTP. This is prevention evidence, not an executed outage or a resilience score.
+One deterministic computation compares the user-entered duration with 60 seconds: `duration <= 60` passes validation, while `duration > 60` blocks before dispatch. STOP and unavailable or stale health always override a passing duration. STOP persists across API restarts; the dashboard reads the authoritative latch and displays the error popup. Navya independently corroborates zero executor calls and zero target mutations over real HTTP. This is prevention evidence, not an executed outage or a resilience score.
 
 Merged team work: Navya platform/telemetry (already on main), Gautam intelligence, and Tooshita runtime (the supplied ZIP matches her branch; archive caches, Git metadata and a stray duplicate package were excluded). Original authorship is preserved in merge history.
 
-Local verification: 315 backend tests, 3 Playwright browser tests, frontend build, contract export check and real-HTTP acceptance passed. Cluster deployment, full chaos execution, SQL execution and external LLM calls are deferred.
+Local verification: 329 backend tests, 4 Playwright browser tests, frontend build, contract export check and real-HTTP acceptance passed. Cluster deployment, full chaos execution, SQL execution and external LLM calls are deferred.
 
 If an older demo occupies ports 8000/8090, use `powershell -ExecutionPolicy Bypass -File scripts/start-demo.ps1 -ApiPort 8100 -TargetPort 8190`, then open `http://127.0.0.1:8100`.

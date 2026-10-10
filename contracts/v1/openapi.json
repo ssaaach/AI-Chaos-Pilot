@@ -620,7 +620,10 @@
             "type": "string"
           },
           "decision": {
-            "const": "BLOCK",
+            "enum": [
+              "ALLOW",
+              "BLOCK"
+            ],
             "title": "Decision",
             "type": "string"
           },
@@ -658,14 +661,20 @@
             "type": "integer"
           },
           "popup_body": {
-            "const": "Injection blocked before execution",
             "default": "Injection blocked before execution",
+            "enum": [
+              "Injection blocked before execution",
+              "Duration accepted for demo"
+            ],
             "title": "Popup Body",
             "type": "string"
           },
           "popup_heading": {
-            "const": "Error has occurred",
             "default": "Error has occurred",
+            "enum": [
+              "Error has occurred",
+              "Safety check passed"
+            ],
             "title": "Popup Heading",
             "type": "string"
           },
@@ -697,7 +706,6 @@
             "type": "string"
           },
           "stop_latched": {
-            "const": true,
             "default": true,
             "title": "Stop Latched",
             "type": "boolean"

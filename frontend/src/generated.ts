@@ -701,9 +701,9 @@ export interface components {
             captured_at: string;
             /**
              * Decision
-             * @constant
+             * @enum {string}
              */
-            decision: "BLOCK";
+            decision: "ALLOW" | "BLOCK";
             /** Duration Seconds */
             duration_seconds: number;
             /**
@@ -735,15 +735,15 @@ export interface components {
             /**
              * Popup Body
              * @default Injection blocked before execution
-             * @constant
+             * @enum {string}
              */
-            popup_body: "Injection blocked before execution";
+            popup_body: "Injection blocked before execution" | "Duration accepted for demo";
             /**
              * Popup Heading
              * @default Error has occurred
-             * @constant
+             * @enum {string}
              */
-            popup_heading: "Error has occurred";
+            popup_heading: "Error has occurred" | "Safety check passed";
             /** Reason */
             reason: string;
             /** Request Id */
@@ -764,9 +764,8 @@ export interface components {
             /**
              * Stop Latched
              * @default true
-             * @constant
              */
-            stop_latched: true;
+            stop_latched: boolean;
             /** Target Requests */
             target_requests: number;
             /**
