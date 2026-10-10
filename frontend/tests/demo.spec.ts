@@ -13,6 +13,9 @@ test('real HTTP target stays healthy; injection is blocked and popup is shown',a
  await page.getByRole('button',{name:'Acknowledge error'}).click();await expect(dialog).not.toBeVisible();
  expect(await page.evaluate(()=>({local:localStorage.length,session:sessionStorage.length}))).toEqual({local:0,session:0});
  await page.getByRole('button',{name:'Findings',exact:true}).click();await expect(page.getByRole('heading',{name:'Prevention evidence'})).toBeVisible();await expect(page.getByText('DURATION_HARD_LIMIT',{exact:true})).toBeVisible();
+ await page.reload();await page.getByLabel('Operator token').fill(token);await page.getByRole('button',{name:'Connect workspace'}).click();
+ await expect(page.getByText('STOP LATCHED',{exact:true})).toBeVisible();await expect(page.getByRole('button',{name:'Inject test error'})).toBeDisabled();
+ await page.getByRole('button',{name:'Reset demo after health check'}).click();await expect(page.getByRole('button',{name:'Inject test error'})).toBeEnabled();
 });
 test('SQL input clears and is never echoed as execution evidence',async({page})=>{
  await page.goto('/');await page.getByLabel('Operator token').fill(token);await page.getByRole('button',{name:'Connect workspace'}).click();
