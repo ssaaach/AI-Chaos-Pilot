@@ -18,3 +18,7 @@ where = ["backend"]
 [tool.pytest.ini_options]
 pythonpath = ["backend"]
 testpaths = ["tests"]
+markers = [
+    "integration_http: real loopback HTTP against the separate demo target (not mocked)",
+]
+asyncio_mode = "auto"
