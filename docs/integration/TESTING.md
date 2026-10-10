@@ -1,11 +1,11 @@
-# Executed validation â€” 10 October 2026
+# Executed validation — 10 October 2026
 
 ## Completed here
 
 - Python contract/API/integration suite: **32 passed**. Covers fixture schema validation, nonfinite/extra-field rejection, missing reasons, changed evidence/hash/pointers, authentication, hostile origins, body limit, safe errors, exact approvals, expiry, consumed approvals, idempotent start, pending STOP, reset/reconciliation, model-independent STOP, report values, SQL non-echo, live-mode refusal, source mismatch, replay read-only/tamper rejection and local guard rules.
 - TypeScript strict compilation and Vite production build: passed. There is an informational bundle-size warning for the chart library.
 - Schema/OpenAPI generation drift check: passed. TypeScript regenerated from exported OpenAPI.
-- Playwright real-service tests: **3 passed**. A separate running HTTP target remains healthy with zero received mutations after the guard rejects the unsafe duration. The popup appears and can be acknowledged. SQL input clears without echoing candidate text. Mobile layout keeps STOP and the injection button visible without horizontal overflow.
+- Playwright real-service tests: **3 passed**. A separate running HTTP target remains healthy with zero received mutations after the guard rejects the unsafe duration. The popup appears and can be acknowledged. Reloading the dashboard preserves the server's STOP indicator; a verified healthy reset enables a new prevention attempt. SQL input clears without echoing candidate text. Mobile layout keeps STOP and the injection button visible without horizontal overflow.
 - Python dependency audit and npm audit after fixes: **no known vulnerabilities reported** at check time. This does not guarantee the absence of unknown vulnerabilities.
 
 Python 3.12.14, Node 22.14.0, FastAPI 0.143.0, Starlette 1.7.0, pytest 9.1.1, Vite 6.4.4 and Playwright 1.64.0 were actually installed/tested. The complete Python/Node dependency versions are in the locks. Starlette emits a test-client migration warning about future HTTPX2 use; the tests currently pass with pinned HTTPX.
