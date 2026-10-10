@@ -1,0 +1,87 @@
+# Bosch Resilience AI
+
+Sachin's shared-contract, FastAPI composition and React dashboard workstream, plus the requested **local prevention demo**. The demo is ready for a real separate HTTP target. It does **not** claim that Online Boutique, Kubernetes faults, SQL execution or an adaptive learner have been deployed.
+
+## Immediate demo
+
+1. Start the separate target and authenticated API/dashboard.
+2. Connect with the temporary local operator token printed by the launcher.
+3. Click **Inject test error**. This submits a 90-second service-pause attempt against a fixed 60-second maximum.
+4. The guard returns `BLOCK`, latches STOP and dispatches **zero** target mutations.
+5. The popup says **Error has occurred** and **Injection blocked before execution**. The request failed validation; the target service remains healthy.
+
+The local target has only a health endpoint. This demonstration intentionally has no ability to execute faults. It verifies a prevention path, not cleanup of an executed Kubernetes fault. The later live runtime belongs to Tooshita.
+
+## Setup (Windows PowerShell)
+
+Tested with Python 3.12.14 and Node 22.14.0. Python 3.11+ and Node 22 are the development targets. Install from official vendor distributions if not available.
+
+```powershell
+python -m venv .venv
+.\.venv\Scripts\python.exe -m pip install -r requirements.lock
+.\.venv\Scripts\python.exe -m pip install --no-deps -e .
+Set-Location frontend
+npm.cmd ci
+npm.cmd run build
+Set-Location ..
+powershell -ExecutionPolicy Bypass -File scripts\start-demo.ps1
+```
+
+Open **http://127.0.0.1:8000**. Paste the temporary token from the launcher. The token is held in RAM, not browser storage. Leave the launcher's terminal running; Ctrl+C stops its two processes. The API uses port 8000 and the read-only target uses 8090. Do not run two launchers simultaneously. If either port is occupied, stop the older demo before launching.
+
+On Linux/macOS use `.venv/bin/python`, `npm ci --prefix frontend`, `npm run build --prefix frontend`, then `sh scripts/start-demo.sh`. Windows is the environment actually tested here; other platforms require verification.
+
+## Development and fixture mode
+
+Fixture mode supplies synthetic contracts, an illustrative partial topology, a completed example run and report. Mutation routes are disabled by default. For a clearly fake lifecycle demonstration use `scripts/start-demo.ps1 -FakeFixtures`. No fixture numbers are reported as live measurements, and there is no fabricated resilience score.
+
+For Vite development, run the API on 8000 and `npm run dev` in `frontend/` on 5173. The proxy forwards `/api`. CORS only permits exact loopback origins; Bearer authentication is required on API/docs/schema routes. Public UI assets contain no operator token.
+
+## Generate contracts and run checks
+
+```powershell
+.\.venv\Scripts\python.exe scripts\export_contracts.py
+npm.cmd run types --prefix frontend
+.\.venv\Scripts\python.exe scripts\export_contracts.py --check
+.\.venv\Scripts\python.exe -m pytest -q
+npm.cmd run build --prefix frontend
+```
+
+`backend/app/contracts/models.py` is authoritative. Generated schemas/OpenAPI are in `contracts/v1/`; generated TypeScript is `frontend/src/generated.ts`. CI regenerates and rejects drift. Regenerate fixtures deliberately with `scripts/make_fixtures.py`; their timestamps and example values are fixed and labelled synthetic.
+
+Browser tests: install the Chromium test browser with `npx playwright install chromium` in `frontend/`; run `npm test` there. Set `PLAYWRIGHT_BROWSERS_PATH` to a writable directory if needed. Tests start their own local API and target with a disposable test token. A genuine local HTTP/browser test is distinct from mocked port tests. See `docs/integration/TESTING.md` for the results from this session.
+
+## Integrate the four owners
+
+| Owner | Implementation |
+|---|---|
+| Ananya | Platform discovery, enrolled target identity, pinned Online Boutique, Kubernetes deployment and verified Redis proxy route |
+| Tooshita | Injection, exact approvals, job ownership, concurrency, watchdog, STOP, fault journal, cleanup, bounded SQL execution |
+| Navya | Independent injection-effect/recovery tests, probes, baseline/fault/recovery summaries, plan estimates and deterministic scoring |
+| Gautam | AST/SQL policy, planning, bounded learner, evidence-grounded reasoning |
+| Sachin | Shared types, composition, authentication, three dashboard views, popup, contract/API/UI integration tests and packaging |
+
+Implement the protocols in `backend/app/api/ports.py` and return a `Ports` object from an importable factory. Configure `DATA_MODE=live`, `LIVE_PORTS_FACTORY=your_module:create_ports`, `OPERATOR_TOKEN`, `SANDBOX_ID`, `KUBE_CONTEXT`. The factory must explicitly attest `runtime_safety_ready=True` only after the independent worker/watchdog and reconciliation path have been verified. Missing modules prevent startup. Live mode never falls back to fixtures. Source mismatches are refused.
+
+SQL execution stays disabled unless `sql_execution_ready=True` in a live adapter. The owner must finish AST validation, intent expiry, current-state revalidation, actor-bound single-use tokens, read-only restricted credentials and bounded execution before enabling it. The API receives only a token at execution, never replacement SQL. Query inputs are transient, errors are sanitized and the editor clears after analysis/expiry.
+
+Replay mode requires `REPLAY_BUNDLE` matching `ReplayBundle.schema.json`: explicit replay source, recorded-from-live declaration and valid summary hashes/pointers. Replay is read-only. A hash proves consistency, not authenticity; obtain the bundle from a trusted recorder. No authentic recording exists in this initial workstream.
+
+## Safety and scope
+
+- One local operator token, Bearer header only, no cookies or credentials in URLs. Strict browser origins and bounded request bodies.
+- STOP receipts acknowledge a request; they never imply verified recovery. Reset requires successful reconciliation and functional recovery.
+- API logs omit access requests and unexpected errors have fixed sanitized bodies; never enable raw SQL/body logging. No analytics, browser storage, request dataset, hosted model or live keys.
+- No SQL parser, learner, metric scoring or cluster mutation is reimplemented in API/UI. The isolated local demo guard is not the team live runtime.
+- The independent live watchdog, journal/restart reconciliation and host/cluster recovery behavior remain owner integration gates. No live cluster exists here.
+- Adaptive action routes are disabled. No SQL execution or committed-write rollback is claimed.
+
+## Team handoff and publishing
+
+Updated full prompts are under `prompts/`; `scripts/update_prompt_pack.py` regenerates the downloadable pack. Ownership is a proposed team division from the supplied pack, not evidence that messages were sent or teammate work is finished.
+
+Team code is Apache-2.0. No upstream application code is bundled; preserve its license/notices when Ananya pins it. Use one repository, protected `main`, feature branch `feat/sachin-integration`, one teammate reviewer and CI. `scripts/publish.ps1` creates a new `bosch-resilience-ai` repository only after normal GitHub CLI authentication; it refuses an existing destination. It never reads credential files directly. Account creation, collaborator invitations and branch protection require working authenticated access.
+
+GitHub publication is not yet verified in this environment. The connector identifies account `ssaaach`, but exposes no repository-creation operation; the browser requires sign-in. The CLI sign-in files were unavailable and automatic review rejected reading them. The complete local source bundle can be published after normal sign-in.
+
+The architecture sheet, real local demo test evidence, fixture findings report, team form and demo recording instructions are under `docs/integration/` / `reports/`. Actual event submission still requires authentic Kubernetes findings, the three required fault mechanisms and a final team-reviewed recording.

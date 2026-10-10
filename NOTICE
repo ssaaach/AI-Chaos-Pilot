@@ -1,0 +1,8 @@
+Bosch Resilience AI integration workstream
+Copyright 2026 Bosch Resilience AI team contributors
+
+Team code is licensed under Apache-2.0.
+This project is a team prototype; it is not an official Bosch product.
+No Google Online Boutique source or Kubernetes upstream manifests are bundled.
+Preserve upstream copyright, licenses and notices when integrating those sources.
+Dependency licenses remain with their respective packages.
